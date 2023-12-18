@@ -1,11 +1,14 @@
 import express from 'express';
-import activitiesRouter from './routes/activities.js';
+import aggiefeedRouter from './routes/AggieFeed/activities.js';
+import rssRouter from './routes/RSS/activities.js';
 
 const app = express();
 
 const PORT = 8080;
 
-app.use('/posts', activitiesRouter);
+app.use('/posts', aggiefeedRouter);
+
+app.use('/test', rssRouter)
 
 app.get('/', (req, res) => {
     res.status(200).send('<h1 style="text-align: center; margin-top: 50px;">IET-Node.js-Project API</h1>');
