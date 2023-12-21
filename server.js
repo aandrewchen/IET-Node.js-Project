@@ -1,19 +1,24 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import aggiefeedRouter from './routes/AggieFeed/activities.js';
 import rssRouter from './routes/RSS/activities.js';
 
-const app = express();
+dotenv.config();
 
+const app = express();
 const PORT = 8080;
 
-mongoose.connect('mongodb://localhost:27017/IET-NodeJS-Project')
+const username = process.env.MONGO_INITDB_ROOT_USERNAME;
+const password = process.env.MONGO_INITDB_ROOT_PASSWORD;
+
+mongoose.connect(`mongodb://${username}:${password}@localhost:27017/activities?authSource=admin`)
     .then(() => console.log('MongoDB Connected...'))
     .catch(err => console.log(err));
 
 app.use('/posts', aggiefeedRouter);
 
-app.use('/test', rssRouter)
+app.use('/rssData', rssRouter)
 
 app.get('/', (req, res) => {
     res.status(200).send('<h1 style="text-align: center; margin-top: 50px;">IET-Node.js-Project API</h1>');
