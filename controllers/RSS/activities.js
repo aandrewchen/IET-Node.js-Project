@@ -16,23 +16,42 @@ const getActivities = async (req, res) => {
                     const displayName = item["dc:creator"] ? item["dc:creator"] : 'Unknown';
                     const title = item.title ? item.title : 'No title';
                     const content = item.description ? item.description.replace(/<[^>]*>/g, '').replace(/\n/g, '') : 'No description';
-                    const url = item.link ? item.link : 'No link';
+                    const ucdSrcId = item.link ? item.link : 'No link';
+                    const published = item.pubDate.time.$.datetime ? new Date(item.pubDate.time.$.datetime).toISOString() : 'No date';
 
                     const newRssActivity = new rssActivities({
-                        activity : {
-                            actor : {
-                                author : {
-                                    displayName : displayName,
-                                },
+                        title: title,
+                        object: {
+                            content: content,
+                            objectType: "notification",
+                            ucdSrcId: ucdSrcId,
+                            ucdEdusModel: {
+                                url: ucdSrcId,
+                                urlDisplayName: title,
                             },
-                            title : title,
-                            object : {
-                                content : content,
-                                ucdEdusModel : {
-                                    url : url,
-                                }
-                            }
-                        }
+                            id: "NOT SURE YET",
+                            masterId: "NOT SURE YET",
+                        },
+                        ucdEdusMeta: {
+                            startDate: "NOT SURE YET",
+                            labels: ["~campus-life"],
+                            endDate: "2030-01-01T00:00:00.000Z",
+                        },
+                        verb: "post",
+                        actor: {
+                            id: "sourceId",
+                            displayName: "NOT SURE YET",
+                            author: {
+                                id: "NOT SURE YET",
+                                displayName: displayName,
+                            },
+                            objectType: "organization",
+                        },
+                        icon: "NOT SURE YET",
+                        id: "NOT SURE YET",
+                        priority: 0,
+                        published: published,
+                        score: 0,
                     });
                     
                     newRssActivity.save();
