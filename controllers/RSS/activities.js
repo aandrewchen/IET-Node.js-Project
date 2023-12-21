@@ -6,17 +6,17 @@ const getActivities = async (req, res) => {
     try {
         const response = await axios.get("https://www.ucdavis.edu/news/latest/rss");
  
-        const parser = new xml2js.Parser();
+        const parser = new xml2js.Parser({ explicitArray: false });
         parser.parseString(response.data, (err, result) => {
             if (err) {
                 res.status(500).json({ message: err.message });
             } else {
-                const items = result.rss.channel[0].item;
+                const items = result.rss.channel.item;
                 items.forEach(item => {
-                    const displayName = item["dc:creator"] ? item["dc:creator"][0] : 'Unknown';
-                    const title = item.title ? item.title[0] : 'No title';
-                    const content = item.description ? item.description[0] : 'No description';
-                    const url = item.link ? item.link[0] : 'No link';
+                    const displayName = item["dc:creator"] ? item["dc:creator"] : 'Unknown';
+                    const title = item.title ? item.title : 'No title';
+                    const content = item.description ? item.description.replace(/<[^>]*>/g, '').replace(/\n/g, '') : 'No description';
+                    const url = item.link ? item.link : 'No link';
 
                     const newRssActivity = new rssActivities({
                         activity : {
@@ -35,11 +35,10 @@ const getActivities = async (req, res) => {
                         }
                     });
                     
-                    console.log('Saving activity');
-                    newRssActivity.save()
-                        .then(() => console.log('Activity saved!'))
-                        .catch(err => console.error(err));
+                    newRssActivity.save();
+                    console.log("Activity saved to database");
                 });
+                res.status(200).send("RSS Activities saved to database");
             }
         });
     } catch (error) {
@@ -47,6 +46,16 @@ const getActivities = async (req, res) => {
     }
 };
 
+const getStoredActivities = async (req, res) => {
+    try {
+        const activities = await rssActivities.find();
+        res.json(activities);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
 export default {
-    getActivities
+    getActivities,
+    getStoredActivities
 };
