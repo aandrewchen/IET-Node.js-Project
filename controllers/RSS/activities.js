@@ -1,6 +1,12 @@
 import axios from "axios";
 import xml2js from "xml2js";
+import { v5 as uuidv5 } from "uuid";
 import rssActivities from "../../model/rssActivities.js";
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+const namespace = process.env.NAMESPACE;
 
 const getActivities = async (req, res) => {
     try {
@@ -18,6 +24,7 @@ const getActivities = async (req, res) => {
                     const content = item.description ? item.description.replace(/<[^>]*>/g, '').replace(/\n/g, '') : 'No description';
                     const ucdSrcId = item.link ? item.link : 'No link';
                     const published = item.pubDate.time.$.datetime ? new Date(item.pubDate.time.$.datetime).toISOString() : 'No date';
+                    const id = uuidv5(ucdSrcId, namespace);
 
                     const newRssActivity = new rssActivities({
                         title: title,
@@ -48,12 +55,12 @@ const getActivities = async (req, res) => {
                             objectType: "organization",
                         },
                         icon: "NOT SURE YET",
-                        id: "NOT SURE YET",
+                        id: id,
                         priority: 0,
                         published: published,
                         score: 0,
                     });
-                    
+
                     newRssActivity.save();
                     console.log("Activity saved to database");
                 });
