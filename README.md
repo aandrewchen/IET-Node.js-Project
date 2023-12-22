@@ -11,6 +11,7 @@ When the browser points to http://localhost:8080/rssData/posts, the stored activ
 # How To Run This App
 
 1. Clone this repository
+2. Ask Andrew for environment variables
 2. Run these commands in your terminal:
    1. npm install
    2. npm start
