@@ -67,21 +67,29 @@ const getActivities = async (req, res) => {
                 score: 0,
             });
 
-            // rssActivities.findOne({ id: newRssActivity.id })
-            //     .then(existingActivity => {
-            
-            rssActivities.findOneAndUpdate(
-                { id: newRssActivity.id },
-                newRssActivity,
-                { upsert: true, runValidators: true },
-            ).then(() => {
-                console.log("RSS Activity saved to database");
-            }).catch(err => {
-                console.log(err);
-            });
+            const checksum = getChecksum(newRssActivity);
+            newRssActivity.checksum = checksum;
+
+            rssActivities.findOne({ id: newRssActivity.id })
+                .then(existingActivity => {
+                    if (existingActivity && existingActivity.checksum === checksum) {
+                        console.log("RSS Activity already exists in database and is up-to-date");
+                        return;
+                    } else {
+                        rssActivities.findOneAndUpdate(
+                            { id: newRssActivity.id },
+                            newRssActivity,
+                            { upsert: true, runValidators: true },
+                        ).then(() => {
+                            console.log("RSS Activity saved to database");
+                        }).catch(err => {
+                            console.log(err);
+                        });
+                    }
+                });
         });
 
-        res.status(200).send("RSS Activities saved to database");
+        res.status(200).send("All up-to-date RSS Activities saved to database");
 
     } catch (error) {
         res.status(409).json({ message: error.message });
