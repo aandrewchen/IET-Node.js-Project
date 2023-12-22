@@ -34,6 +34,10 @@ const rssActivitiesSchema = new Schema({
     priority: Number,
     published: String,
     score: Number,
+    checksum: {
+        type: String,
+        required: true,
+    },
 });
 
 const rssActivities = model("rssActivities", rssActivitiesSchema);
