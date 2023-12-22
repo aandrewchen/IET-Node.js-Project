@@ -33,7 +33,7 @@ const getActivities = async (req, res) => {
                             masterId: "NOT SURE YET",
                         },
                         ucdEdusMeta: {
-                            startDate: "NOT SURE YET",
+                            startDate: new Date().toISOString(),
                             labels: ["~campus-life"],
                             endDate: "2030-01-01T00:00:00.000Z",
                         },
