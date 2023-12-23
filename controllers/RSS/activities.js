@@ -70,24 +70,79 @@ const getActivities = async (req, res) => {
             const checksum = getChecksum(newRssActivity);
             newRssActivity.checksum = checksum;
 
-            rssActivities.findOne({ id: newRssActivity.id })
+            rssActivities.findOne({ id: id })
                 .then(existingActivity => {
-                    if (existingActivity && existingActivity.checksum === checksum) {
+                    if (existingActivity && (existingActivity.checksum === checksum)) {
                         console.log("RSS Activity already exists in database and is up-to-date");
                         return;
                     } else {
                         rssActivities.findOneAndUpdate(
-                            { id: newRssActivity.id },
+                            { id: id },
                             newRssActivity,
                             { upsert: true, runValidators: true },
                         ).then(() => {
                             console.log("RSS Activity saved to database");
                         }).catch(err => {
-                            console.log(err);
+                            console.log("Error:", err);
                         });
                     }
                 });
         });
+
+        // const dummyData = {
+        //     title: "UC Davis News",
+        //     object: {
+        //         content: "UC Davis News",
+        //         objectType: "notification",
+        //         ucdSrcId: "https://www.ucdavis.edu/news/latest/rss",
+        //         ucdEdusModel: {
+        //             url: "https://www.ucdavis.edu/news/latest/rss",
+        //             urlDisplayName: "UC Davis News",
+        //         },
+        //         id: "NOT SURE YET",
+        //         masterId: "NOT SURE YET",
+        //     },
+        //     ucdEdusMeta: {
+        //         startDate: new Date().toISOString(),
+        //         labels: ["~campus-life"],
+        //         endDate: "2030-01-01T00:00:00.000Z",
+        //     },
+        //     verb: "post",
+        //     actor: {
+        //         id: "sourceId",
+        //         displayName: "NOT SURE YET",
+        //         author: {
+        //             id: "NOT SURE YET",
+        //             displayName: "UC Davis News",
+        //         },
+        //     },
+        //     icon: "NOT SURE YET",
+        //     id: "62355fb8-2fa8-5a47-89ab-ea2c1fb13d31",
+        //     priority: 0,
+        //     published: new Date().toISOString(),
+        //     score: 0,
+        // };
+
+        // rssActivities.findOne({ id: '62355fb8-2fa8-5a47-89ab-ea2c1fb13d31'})
+        //     .then(doc => {
+        //         if (doc && (doc.checksum === '775ce3b413f521876ff0924e9c0958f8b39dcffedafe2fe7106dbc18c0e9fe59')) {
+        //             console.log("RSS Activity already exists in database and is up-to-date");
+        //             return;
+        //         } else {
+        //             rssActivities.findOneAndUpdate(
+        //                 { id: id },
+        //                 dummyData,
+        //                 { upsert: true, runValidators: true },
+        //             ).then(() => {
+        //                 console.log("RSS Activity saved to database");
+        //             }).catch(err => {
+        //                 console.log("Error:", err);
+        //             });
+        //         }
+        //     })
+        //     .catch(err => {
+        //         console.log('Error:', err);
+        //     });
 
         res.status(200).send("All up-to-date RSS Activities saved to database");
 
