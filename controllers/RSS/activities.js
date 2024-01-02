@@ -49,7 +49,6 @@ const getActivities = async (req, res) => {
                     masterId: "NOT SURE YET",
                 },
                 ucdEdusMeta: {
-                    // startDate: new Date().toISOString(),
                     labels: ["~campus-life"],
                     endDate: "2030-01-01T00:00:00.000Z",
                 },
@@ -83,6 +82,8 @@ const getActivities = async (req, res) => {
                         console.log("RSS Activity already exists in database and is up-to-date");
                         return;
                     } else {
+                        const startDate = new Date().toISOString();
+                        newRssActivity.ucdEdusMeta.startDate = startDate;
                         rssActivities.findOneAndUpdate(
                             { id: id },
                             newRssActivity,
