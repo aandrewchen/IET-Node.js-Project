@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
 const rssActivitiesSchema = new Schema({
+    _id: String,
     title: String,
     object: {
         content: String,
@@ -15,7 +16,7 @@ const rssActivitiesSchema = new Schema({
         masterId: String,
     },
     ucdEdusMeta: {
-        startDate: String,
+        // startDate: String,
         labels: [String],
         endDate: String,
     },
