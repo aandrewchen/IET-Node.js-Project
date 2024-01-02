@@ -1,21 +1,13 @@
 import axios from "axios";
 import xml2js from "xml2js";
-import crypto from "crypto";
 import { v5 as uuidv5 } from "uuid";
 import rssActivities from "../../model/rssActivities.js";
+import { getChecksum, addAggieFeedProperties } from "./utils.js";
 
 import dotenv from 'dotenv';
 dotenv.config();
 
 const namespace = process.env.NAMESPACE;
-
-function getChecksum(rssActivity) {
-    const hash = crypto.createHash('sha256');
-    const value = JSON.stringify(rssActivity);
-    console.log("stringified value:", value)
-    hash.update(value);
-    return hash.digest('hex');
-}
 
 const getActivities = async (req, res) => {
     try {
@@ -35,43 +27,27 @@ const getActivities = async (req, res) => {
             const id = uuidv5(ucdSrcId, namespace);
 
             const newRssActivity = new rssActivities({
-                _id: id,
                 title: title,
                 object: {
                     content: content,
-                    objectType: "notification",
                     ucdSrcId: ucdSrcId,
                     ucdEdusModel: {
                         url: ucdSrcId,
                         urlDisplayName: title,
                     },
-                    id: "NOT SURE YET",
-                    masterId: "NOT SURE YET",
                 },
-                ucdEdusMeta: {
-                    labels: ["~campus-life"],
-                    endDate: "2030-01-01T00:00:00.000Z",
-                },
-                verb: "post",
                 actor: {
-                    id: "sourceId",
-                    displayName: "NOT SURE YET",
                     author: {
-                        id: "NOT SURE YET",
                         displayName: displayName,
                     },
-                    objectType: "organization",
                 },
-                icon: "NOT SURE YET",
-                id: id,
-                priority: 0,
                 published: published,
-                score: 0,
             });
 
-            console.log("creating checksum")
+            // Creating checksum of only RSS properties
+            console.log("Creating checksum");
             const checksum = getChecksum(newRssActivity);
-            console.log("checksum created:", checksum)
+            console.log("Checksum created:", checksum);
             newRssActivity.checksum = checksum;
 
             console.log(newRssActivity)
@@ -82,8 +58,8 @@ const getActivities = async (req, res) => {
                         console.log("RSS Activity already exists in database and is up-to-date");
                         return;
                     } else {
-                        const startDate = new Date().toISOString();
-                        newRssActivity.ucdEdusMeta.startDate = startDate;
+                        addAggieFeedProperties(newRssActivity);
+
                         rssActivities.findOneAndUpdate(
                             { id: id },
                             newRssActivity,
@@ -94,7 +70,7 @@ const getActivities = async (req, res) => {
                             console.log("Error:", err);
                         });
                     }
-                });
+                });  
         });
 
         // const ucdSrcId = "https://www.ucdavis.edu/news/latest/rss";
