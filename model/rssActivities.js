@@ -16,7 +16,7 @@ const rssActivitiesSchema = new Schema({
         masterId: String,
     },
     ucdEdusMeta: {
-        // startDate: String,
+        startDate: String,
         labels: [String],
         endDate: String,
     },
