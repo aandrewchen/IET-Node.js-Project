@@ -168,7 +168,7 @@ const getActivities = async (req, res) => {
 
 const getStoredActivities = async (req, res) => {
     try {
-        const activities = await rssActivities.find();
+        const activities = await rssActivities.find().limit(20);
         res.json(activities);
     } catch (err) {
         res.status(500).json({ message: err.message });
