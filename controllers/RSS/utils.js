@@ -12,11 +12,10 @@ export function addAggieFeedProperties(rssActivity) {
     const objectId = "NOT SURE YET";
     const objectMasterId = "NOT SURE YET";
     const startDate = new Date().toISOString();
-    const labels = ["~campus-life"];
-    const actorId = "sourceId";
-    const actorDisplayName = "NOT SURE YET";
-    const authorId = "NOT SURE YET";
-    const icon = "NOT SURE YET";
+    const actorId = "test-source-id";
+    const actorDisplayName = "UC Test Department";
+    const authorId = "test-source-id";
+    const icon = "icon-rss";
 
     rssActivity.object = {
         content: rssActivity.object.content,
@@ -31,7 +30,7 @@ export function addAggieFeedProperties(rssActivity) {
 
     rssActivity.ucdEdusMeta = {
         startDate: startDate,
-        labels: labels,
+        labels: ["~campus-life"],
         endDate: "2030-01-01T00:00:00.000Z",
     };
 
