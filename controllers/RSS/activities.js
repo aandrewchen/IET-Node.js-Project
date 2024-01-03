@@ -2,7 +2,7 @@ import axios from "axios";
 import xml2js from "xml2js";
 import { v5 as uuidv5 } from "uuid";
 import rssActivities from "../../model/rssActivities.js";
-import { getChecksum, addAggieFeedProperties } from "./utils.js";
+import { getChecksum, addAggieFeedProperties, orderActivities } from "./utils.js";
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -49,8 +49,8 @@ const getActivities = async (req, res) => {
             const checksum = getChecksum(newRssActivity);
             console.log("Checksum created:", checksum);
             newRssActivity.checksum = checksum;
-
-            console.log(newRssActivity)
+            
+            console.log(newRssActivity);
 
             rssActivities.findOne({ id: id })
                 .then(existingActivity => {
@@ -145,7 +145,10 @@ const getActivities = async (req, res) => {
 const getStoredActivities = async (req, res) => {
     try {
         const activities = await rssActivities.find().limit(20);
-        res.json(activities);
+        
+        const orderedActivities = orderActivities(activities);
+        
+        res.json(orderedActivities);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
