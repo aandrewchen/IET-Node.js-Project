@@ -73,68 +73,6 @@ const getActivities = async (req, res) => {
                 });  
         });
 
-        // const ucdSrcId = "https://www.ucdavis.edu/news/latest/rss";
-        // const id = uuidv5(ucdSrcId, namespace);
-
-        // const newRssActivity = {
-        //     title: "UC Davis News",
-        //     object: {
-        //         content: "UC Davis News",
-        //         objectType: "notification",
-        //         ucdSrcId: "https://www.ucdavis.edu/news/latest/rss",
-        //         ucdEdusModel: {
-        //             url: "https://www.ucdavis.edu/news/latest/rss",
-        //             urlDisplayName: "HI",
-        //         },
-        //         id: "NOT SURE YET",
-        //         masterId: "NOT SURE YET",
-        //     },
-        //     ucdEdusMeta: {
-        //         // startDate: new Date().toISOString(),
-        //         labels: ["~campus-life"],
-        //         endDate: "2030-01-01T00:00:00.000Z",
-        //     },
-        //     verb: "post",
-        //     actor: {
-        //         id: "sourceId",
-        //         displayName: "HEY",
-        //         author: {
-        //             id: "NOT SURE YET",
-        //             displayName: "UC Davis News",
-        //         },
-        //     },
-        //     icon: "NOT SURE YET",
-        //     id: id,
-        //     priority: 0,
-        //     published: "published",
-        //     score: 0,
-        // };
-
-        // console.log("creating checksum")
-        // const checksum = getChecksum(newRssActivity);
-        // console.log("checksum created:", checksum)
-        // newRssActivity.checksum = checksum;
-
-        // console.log(newRssActivity)
-
-        // rssActivities.findOne({ id: id })
-        //     .then(existingActivity => {
-        //         if (existingActivity && (existingActivity.checksum === checksum)) {
-        //             console.log("RSS Activity already exists in database and is up-to-date");
-        //             return;
-        //         } else {
-        //             rssActivities.findOneAndUpdate(
-        //                 { id: id },
-        //                 newRssActivity,
-        //                 { upsert: true, runValidators: true },
-        //             ).then(() => {
-        //                 console.log("RSS Activity updated or saved to database");
-        //             }).catch(err => {
-        //                 console.log("Error:", err);
-        //             });
-        //         }
-        //     });
-
         res.status(200).send("All up-to-date RSS Activities saved to database");
 
     } catch (error) {
