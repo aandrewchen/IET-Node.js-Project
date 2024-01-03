@@ -9,8 +9,6 @@ export function getChecksum(rssActivity) {
 }
 
 export function addAggieFeedProperties(rssActivity) {
-    const objectId = "NOT SURE YET";
-    const objectMasterId = "NOT SURE YET";
     const startDate = new Date().toISOString();
     const actorId = "test-source-id";
     const actorDisplayName = "UC Test Department";
@@ -24,8 +22,6 @@ export function addAggieFeedProperties(rssActivity) {
         ucdEdusModel: {
             ...rssActivity.object.ucdEdusModel,
         },
-        id: objectId,
-        masterId: objectMasterId,
     };
 
     rssActivity.ucdEdusMeta = {
