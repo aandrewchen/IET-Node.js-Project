@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const namespace = process.env.NAMESPACE;
+const AGGIEFEED_API_KEY = process.env.AGGIEFEED_API_KEY;
 
 const getActivities = async (req, res) => {
     try {
@@ -94,7 +95,12 @@ const getStoredActivities = async (req, res) => {
 
 const getSources = async (req, res) => {
     try {
-        
+        const response = await axios.get("https://aggiefeed.ucdavis.edu/api/v1/source", {
+            headers: {
+                "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
+            },
+        })
+        console.log(response.data);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
