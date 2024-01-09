@@ -5,6 +5,5 @@ const router = express.Router();
 
 router.get('/', rssController.getActivities);
 router.get('/posts', rssController.getStoredActivities);
-router.get('/getSources', rssController.getSources);
 
 export default router;
