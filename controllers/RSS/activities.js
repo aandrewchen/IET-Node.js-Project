@@ -95,12 +95,17 @@ const getStoredActivities = async (req, res) => {
 
 const getSources = async (req, res) => {
     try {
-        const response = await axios.get("https://aggiefeed.ucdavis.edu/api/v1/source", {
+        const response = await axios.get("http://localhost:8080/api/v1/source", {
             headers: {
                 "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
             },
+            params: {
+                "connectorType": "rss",
+            },
         })
-        console.log(response.data);
+        const data = response.data
+        res.send(data)
+        console.log(data)
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
