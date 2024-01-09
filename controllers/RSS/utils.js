@@ -1,4 +1,10 @@
 import crypto from "crypto";
+import axios from "axios";
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+const AGGIEFEED_API_KEY = process.env.AGGIEFEED_API_KEY;
 
 export function getChecksum(rssActivity) {
     const hash = crypto.createHash('sha256');
@@ -64,3 +70,21 @@ export function orderActivities(activities) {
         score: activity.score,
     }));
 }
+
+export async function getSources() {
+    try {
+        const response = await axios.get("http://localhost:8080/api/v1/source", {
+            headers: {
+                "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
+            },
+            params: {
+                "connectorType": "rss",
+            },
+        });
+        const data = response.data
+        const rssURI = data[0].connectors[0].uri;
+        return rssURI;
+    } catch (err) {
+        throw err;
+    }
+};
