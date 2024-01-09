@@ -2,17 +2,18 @@ import axios from "axios";
 import xml2js from "xml2js";
 import { v5 as uuidv5 } from "uuid";
 import rssActivities from "../../model/rssActivities.js";
-import { getChecksum, addAggieFeedProperties, orderActivities } from "./utils.js";
+import { getChecksum, addAggieFeedProperties, orderActivities, getSources } from "./utils.js";
 
 import dotenv from 'dotenv';
 dotenv.config();
 
 const namespace = process.env.NAMESPACE;
-const AGGIEFEED_API_KEY = process.env.AGGIEFEED_API_KEY;
 
 const getActivities = async (req, res) => {
     try {
-        const response = await axios.get("https://www.ucdavis.edu/news/latest/rss");
+        const rssURI = await getSources();
+        
+        const response = await axios.get(rssURI);
  
         const parser = new xml2js.Parser({ explicitArray: false });
         const result = await parser.parseStringPromise(response.data);
@@ -93,26 +94,7 @@ const getStoredActivities = async (req, res) => {
     }
 };
 
-const getSources = async (req, res) => {
-    try {
-        const response = await axios.get("http://localhost:8080/api/v1/source", {
-            headers: {
-                "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
-            },
-            params: {
-                "connectorType": "rss",
-            },
-        })
-        const data = response.data
-        res.send(data)
-        console.log(data)
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
-
 export default {
     getActivities,
-    getStoredActivities,
-    getSources
+    getStoredActivities
 };
