@@ -46,17 +46,17 @@ const getActivities = async (req, res) => {
                 published: published,
             });
 
-            // Creating checksum of only RSS properties
-            console.log("Creating checksum");
-            const checksum = getChecksum(newRssActivity);
-            console.log("Checksum created:", checksum);
-            newRssActivity.checksum = checksum;
+            // // Creating checksum of only RSS properties
+            // console.log("Creating checksum");
+            // const checksum = getChecksum(newRssActivity);
+            // console.log("Checksum created:", checksum);
+            // newRssActivity.checksum = checksum;
             
             console.log(newRssActivity);
 
             rssActivities.findOne({ id: id })
                 .then(existingActivity => {
-                    if (existingActivity && (existingActivity.checksum === checksum)) {
+                    if (existingActivity /*&& (existingActivity.checksum === checksum)*/) {
                         console.log("RSS Activity already exists in database and is up-to-date");
                         return;
                     } else {
@@ -67,7 +67,7 @@ const getActivities = async (req, res) => {
                             newRssActivity,
                             { upsert: true, runValidators: true },
                         ).then(() => {
-                            console.log("RSS Activity updated or saved to database");
+                            console.log("RSS Activity saved to database");
                         }).catch(err => {
                             console.log("Error:", err);
                         });
