@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const namespace = process.env.NAMESPACE;
+const AGGIEFEED_API_KEY = process.env.AGGIEFEED_API_KEY;
 
 const getActivities = async (req, res) => {
     try {
