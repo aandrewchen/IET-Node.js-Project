@@ -16,7 +16,7 @@ export function getChecksum(rssActivity) {
 
 export function addAggieFeedProperties(rssActivity, connectorId) {
     const startDate = new Date().toISOString();
-    const actorId = "test-source-id";
+    const actorId = "edustest";
     const actorDisplayName = "UC Test Department";
     const authorId = "test-source-id";
     const authorDisplayName = "UC Test Department";
@@ -63,7 +63,9 @@ export function addAggieFeedProperties(rssActivity, connectorId) {
         id: connectorId,
     };
 
-    return rssActivity;
+    return {
+        activity: rssActivity,
+    };
 }
 
 export function orderActivities(activities) {
@@ -100,3 +102,18 @@ export async function getSources() {
         throw err;
     }
 };
+
+export async function postActivities(rssActivity) {
+    try {
+        await axios.post('http://localhost:8080/api/v1/activity', rssActivity, {
+            headers: {
+                "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
+            },
+        })
+        .then(() => {
+            console.log("Activity sent to AggieFeed API");
+        })
+    } catch (err) {
+        throw err;
+    }
+}

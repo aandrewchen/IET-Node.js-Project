@@ -1,14 +1,7 @@
 import axios from "axios";
 import xml2js from "xml2js";
-import { v5 as uuidv5 } from "uuid";
 // import rssActivities from "../../model/rssActivities.js";
-import { orderActivities, getSources, addAggieFeedProperties } from "./utils.js";
-
-import dotenv from 'dotenv';
-dotenv.config();
-
-const namespace = process.env.NAMESPACE;
-const AGGIEFEED_API_KEY = process.env.AGGIEFEED_API_KEY;
+import { getSources, addAggieFeedProperties, postActivities } from "./utils.js";
 
 const getActivities = async (req, res) => {
     try {
@@ -23,13 +16,12 @@ const getActivities = async (req, res) => {
 
         items.forEach(item => {
             const displayName = item["dc:creator"] ? item["dc:creator"] : 'Unknown';
-            const title = item.title ? item.title : 'No title';
-            const content = item.description ? item.description.replace(/<[^>]*>/g, '').replace(/\n/g, '') : 'No description';
+            const title = item.title ? item.title.replace(/&#8216;/g, "'").replace(/&#8217;/g, "'") : 'No title'; // replace for " ' "
+            const content = item.description ? item.description.replace(/<[^>]*>/g, '').replace(/\n/g, '') : 'No description'; // replace unwanted characters
             const ucdSrcId = item.link ? item.link : 'No link';
             const published = item.pubDate.time.$.datetime ? new Date(item.pubDate.time.$.datetime).toISOString() : 'No date';
-            const id = uuidv5(ucdSrcId, namespace);
 
-            const newRssActivity = {
+            let newRssActivity = {
                 title: title,
                 object: {
                     content: content,
@@ -47,70 +39,33 @@ const getActivities = async (req, res) => {
                 published: published,
             };
 
-            addAggieFeedProperties(newRssActivity, sourceProperties.connectorId);
+            newRssActivity = addAggieFeedProperties(newRssActivity, sourceProperties.connectorId);
 
             console.log(newRssActivity);
 
-            // rssActivities.findOne({ id: id })
-            //     .then(existingActivity => {
-            //         if (existingActivity && (existingActivity.checksum === checksum)) {
-            //             console.log("RSS Activity already exists in database and is up-to-date");
-            //             return;
-            //         } else {
-            //             addAggieFeedProperties(newRssActivity);
-
-            //             rssActivities.findOneAndUpdate(
-            //                 { id: id },
-            //                 newRssActivity,
-            //                 { upsert: true, runValidators: true },
-            //             ).then(() => {
-            //                 console.log("RSS Activity saved to database");
-            //             }).catch(err => {
-            //                 console.log("Error:", err);
-            //             });
-            //         }
-            //     });  
+            postActivities(newRssActivity);
         });
 
-        res.status(200).send("All up-to-date RSS Activities saved to database");
+        res.status(200).send("All fetched RSS Activities saved to AggieFeed API");
 
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
 };
 
-const getStoredActivities = async (req, res) => {
-    try {
-        const activities = await rssActivities.find().limit(20);
-        
-        const orderedActivities = orderActivities(activities);
-        
-        res.json(orderedActivities);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
-
-// const postActivities = async (req, res) => {
+// const getStoredActivities = async (req, res) => {
 //     try {
-//         const activities = await rssActivities.find();
+//         const activities = await rssActivities.find().limit(20);
+        
 //         const orderedActivities = orderActivities(activities);
-//         console.log(orderedActivities);
-//         for (const activity of orderedActivities) {
-//             await axios.post('http://localhost:8080/api/v1/activity', activity, {
-//                 headers: {
-//                     "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
-//                 },
-//             });
-//         }
-
-//         res.status(200).json({ message: 'All activities sent to AggieFeed API' });
+        
+//         res.json(orderedActivities);
 //     } catch (err) {
 //         res.status(500).json({ message: err.message });
 //     }
-// }
+// };
 
 export default {
     getActivities,
-    getStoredActivities
+    // getStoredActivities
 };
