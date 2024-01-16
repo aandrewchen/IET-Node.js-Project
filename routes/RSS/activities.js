@@ -6,6 +6,4 @@ const router = express.Router();
 router.get('/', rssController.getActivities);
 router.get('/posts', rssController.getStoredActivities);
 
-router.get('/post-activities', rssController.postActivities);
-
 export default router;
