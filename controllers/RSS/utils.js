@@ -14,11 +14,12 @@ export function getChecksum(rssActivity) {
     return hash.digest('hex');
 }
 
-export function addAggieFeedProperties(rssActivity) {
+export function addAggieFeedProperties(rssActivity, connectorId) {
     const startDate = new Date().toISOString();
     const actorId = "test-source-id";
     const actorDisplayName = "UC Test Department";
     const authorId = "test-source-id";
+    const authorDisplayName = "UC Test Department";
     const icon = "icon-rss";
 
     rssActivity.object = {
@@ -42,7 +43,7 @@ export function addAggieFeedProperties(rssActivity) {
         displayName: actorDisplayName,
         author: {
             id: authorId,
-            displayName: rssActivity.actor.displayName,
+            displayName: authorDisplayName,
         },
         objectType: "organization",
     };
@@ -51,6 +52,16 @@ export function addAggieFeedProperties(rssActivity) {
     rssActivity.priority = 0;
     rssActivity.score = 0;
     rssActivity.verb = "post";
+    rssActivity.to = [
+        {
+            id: "public",
+            g: true,
+            i: false,
+        }
+    ];
+    rssActivity.generator = {
+        id: connectorId,
+    };
 
     return rssActivity;
 }
@@ -83,7 +94,8 @@ export async function getSources() {
         });
         const data = response.data
         const rssURI = data[0].connectors[0].uri;
-        return rssURI;
+        const connectorId = data[0].connectors[0].id;
+        return { rssURI, connectorId };
     } catch (err) {
         throw err;
     }
