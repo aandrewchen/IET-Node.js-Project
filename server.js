@@ -12,9 +12,9 @@ const PORT = 3001;
 const username = process.env.MONGO_INITDB_ROOT_USERNAME;
 const password = process.env.MONGO_INITDB_ROOT_PASSWORD;
 
-mongoose.connect(`mongodb://${username}:${password}@localhost:27018/activities?authSource=admin`)
-    .then(() => console.log('MongoDB Connected...'))
-    .catch(err => console.log(err));
+// mongoose.connect(`mongodb://${username}:${password}@localhost:27018/activities?authSource=admin`)
+//     .then(() => console.log('MongoDB Connected...'))
+//     .catch(err => console.log(err));
 
 app.use('/posts', aggiefeedRouter);
 
