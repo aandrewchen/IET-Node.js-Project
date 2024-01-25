@@ -1,7 +1,7 @@
 import axios from "axios";
 import xml2js from "xml2js";
 // import rssActivities from "../../model/rssActivities.js";
-import { getSources, addAggieFeedProperties, postActivities } from "./utils.js";
+import { getSources, addAggieFeedProperties, updateActivities } from "./utils.js";
 
 const getActivities = async (req, res) => {
     try {
@@ -41,9 +41,7 @@ const getActivities = async (req, res) => {
 
             newRssActivity = addAggieFeedProperties(newRssActivity, sourceProperties.connectorId);
 
-            console.log(newRssActivity);
-
-            postActivities(newRssActivity);
+            updateActivities(newRssActivity);
         });
 
         res.status(200).send("All fetched RSS Activities saved to AggieFeed API");
