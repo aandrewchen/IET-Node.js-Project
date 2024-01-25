@@ -103,7 +103,7 @@ export async function getSources() {
     }
 };
 
-export async function postActivities(rssActivity) {
+export async function updateActivities(rssActivity) {
     try {
         await axios.post('http://localhost:8080/api/v1/activity', rssActivity, {
             headers: {
@@ -112,6 +112,25 @@ export async function postActivities(rssActivity) {
         })
         .then(() => {
             console.log("Activity sent to AggieFeed API");
+        })
+    } catch (err) {
+        if (err.response.data === 'ERROR: Duplicate activity') {
+            console.log("Activity up-to-date");
+        } else if (err.response.data === 'ERROR:  Existing activity but modified content') {
+            putActivity(rssActivity);
+        }
+    }
+}
+
+function putActivity(rssActivity) {
+    try {
+        axios.put(`http://localhost:8080/api/v1/activity/${rssActivity.object.id}`, rssActivity, {
+            headers: {
+                "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
+            },
+        })
+        .then(() => {
+            console.log("Modified activity sent to AggieFeed API");
         })
     } catch (err) {
         throw err;
