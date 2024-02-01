@@ -35,9 +35,15 @@ const rssActivitiesSchema = new Schema({
     priority: Number,
     published: String,
     score: Number,
-    checksum: {
-        type: String,
-        required: true,
+    to: [
+        {
+            id: String,
+            g: Boolean,
+            i: Boolean,
+        }
+    ],
+    generator: {
+        id: String,
     },
 });
 

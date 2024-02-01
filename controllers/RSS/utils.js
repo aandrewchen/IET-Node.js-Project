@@ -1,4 +1,10 @@
 import crypto from "crypto";
+import axios from "axios";
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+const AGGIEFEED_API_KEY = process.env.AGGIEFEED_API_KEY;
 
 export function getChecksum(rssActivity) {
     const hash = crypto.createHash('sha256');
@@ -8,11 +14,12 @@ export function getChecksum(rssActivity) {
     return hash.digest('hex');
 }
 
-export function addAggieFeedProperties(rssActivity) {
+export function addAggieFeedProperties(rssActivity, connectorId) {
     const startDate = new Date().toISOString();
-    const actorId = "test-source-id";
+    const actorId = "edustest";
     const actorDisplayName = "UC Test Department";
     const authorId = "test-source-id";
+    const authorDisplayName = "UC Test Department";
     const icon = "icon-rss";
 
     rssActivity.object = {
@@ -36,7 +43,7 @@ export function addAggieFeedProperties(rssActivity) {
         displayName: actorDisplayName,
         author: {
             id: authorId,
-            displayName: rssActivity.actor.displayName,
+            displayName: authorDisplayName,
         },
         objectType: "organization",
     };
@@ -45,8 +52,20 @@ export function addAggieFeedProperties(rssActivity) {
     rssActivity.priority = 0;
     rssActivity.score = 0;
     rssActivity.verb = "post";
+    rssActivity.to = [
+        {
+            id: "public",
+            g: true,
+            i: false,
+        }
+    ];
+    rssActivity.generator = {
+        id: connectorId,
+    };
 
-    return rssActivity;
+    return {
+        activity: rssActivity,
+    };
 }
 
 export function orderActivities(activities) {
@@ -63,4 +82,57 @@ export function orderActivities(activities) {
         published: activity.published,
         score: activity.score,
     }));
+}
+
+export async function getSources() {
+    try {
+        const response = await axios.get("http://localhost:8080/api/v1/source", {
+            headers: {
+                "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
+            },
+            params: {
+                "connectorType": "rss",
+            },
+        });
+        const data = response.data
+        const rssURI = data[0].connectors[0].uri;
+        const connectorId = data[0].connectors[0].id;
+        return { rssURI, connectorId };
+    } catch (err) {
+        throw err;
+    }
+};
+
+export async function updateActivities(rssActivity) {
+    try {
+        await axios.post('http://localhost:8080/api/v1/activity', rssActivity, {
+            headers: {
+                "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
+            },
+        })
+        .then(() => {
+            console.log("Activity sent to AggieFeed API");
+        })
+    } catch (err) {
+        if (err.response.data === 'ERROR: Duplicate activity') {
+            console.log("Activity up-to-date");
+        } else if (err.response.data === 'ERROR:  Existing activity but modified content') {
+            putActivity(rssActivity);
+        }
+    }
+}
+
+function putActivity(rssActivity) {
+    try {
+        axios.put(`http://localhost:8080/api/v1/activity/${rssActivity.object.id}`, rssActivity, {
+            headers: {
+                "Authorization": `ApiKey ${AGGIEFEED_API_KEY}`,
+            },
+        })
+        .then(() => {
+            console.log("Modified activity sent to AggieFeed API");
+        })
+    } catch (err) {
+        throw err;
+    }
 }

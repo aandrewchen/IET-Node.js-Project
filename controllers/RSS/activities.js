@@ -1,17 +1,13 @@
 import axios from "axios";
 import xml2js from "xml2js";
-import { v5 as uuidv5 } from "uuid";
-import rssActivities from "../../model/rssActivities.js";
-import { getChecksum, addAggieFeedProperties, orderActivities } from "./utils.js";
-
-import dotenv from 'dotenv';
-dotenv.config();
-
-const namespace = process.env.NAMESPACE;
+// import rssActivities from "../../model/rssActivities.js";
+import { getSources, addAggieFeedProperties, updateActivities } from "./utils.js";
 
 const getActivities = async (req, res) => {
     try {
-        const response = await axios.get("https://www.ucdavis.edu/news/latest/rss");
+        const sourceProperties = await getSources();
+        
+        const response = await axios.get(sourceProperties.rssURI);
  
         const parser = new xml2js.Parser({ explicitArray: false });
         const result = await parser.parseStringPromise(response.data);
@@ -20,13 +16,12 @@ const getActivities = async (req, res) => {
 
         items.forEach(item => {
             const displayName = item["dc:creator"] ? item["dc:creator"] : 'Unknown';
-            const title = item.title ? item.title : 'No title';
-            const content = item.description ? item.description.replace(/<[^>]*>/g, '').replace(/\n/g, '') : 'No description';
+            const title = item.title ? item.title.replace(/&#8216;/g, "'").replace(/&#8217;/g, "'") : 'No title'; // replace for " ' "
+            const content = item.description ? item.description.replace(/<[^>]*>/g, '').replace(/\n/g, '') : 'No description'; // replace unwanted characters
             const ucdSrcId = item.link ? item.link : 'No link';
             const published = item.pubDate.time.$.datetime ? new Date(item.pubDate.time.$.datetime).toISOString() : 'No date';
-            const id = uuidv5(ucdSrcId, namespace);
 
-            const newRssActivity = new rssActivities({
+            let newRssActivity = {
                 title: title,
                 object: {
                     content: content,
@@ -42,57 +37,33 @@ const getActivities = async (req, res) => {
                     },
                 },
                 published: published,
-            });
+            };
 
-            // Creating checksum of only RSS properties
-            console.log("Creating checksum");
-            const checksum = getChecksum(newRssActivity);
-            console.log("Checksum created:", checksum);
-            newRssActivity.checksum = checksum;
-            
-            console.log(newRssActivity);
+            newRssActivity = addAggieFeedProperties(newRssActivity, sourceProperties.connectorId);
 
-            rssActivities.findOne({ id: id })
-                .then(existingActivity => {
-                    if (existingActivity && (existingActivity.checksum === checksum)) {
-                        console.log("RSS Activity already exists in database and is up-to-date");
-                        return;
-                    } else {
-                        addAggieFeedProperties(newRssActivity);
-
-                        rssActivities.findOneAndUpdate(
-                            { id: id },
-                            newRssActivity,
-                            { upsert: true, runValidators: true },
-                        ).then(() => {
-                            console.log("RSS Activity updated or saved to database");
-                        }).catch(err => {
-                            console.log("Error:", err);
-                        });
-                    }
-                });  
+            updateActivities(newRssActivity);
         });
 
-        res.status(200).send("All up-to-date RSS Activities saved to database");
+        res.status(200).send("All fetched RSS Activities saved to AggieFeed API");
 
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
 };
 
-const getStoredActivities = async (req, res) => {
-    try {
-        const activities = await rssActivities.find().limit(20);
+// const getStoredActivities = async (req, res) => {
+//     try {
+//         const activities = await rssActivities.find().limit(20);
         
-        const orderedActivities = orderActivities(activities);
+//         const orderedActivities = orderActivities(activities);
         
-        res.json(orderedActivities);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
+//         res.json(orderedActivities);
+//     } catch (err) {
+//         res.status(500).json({ message: err.message });
+//     }
+// };
 
 export default {
     getActivities,
-    getStoredActivities
+    // getStoredActivities
 };
