@@ -1,6 +1,6 @@
 # IET-Node.js-Project
 
-In this project, I used Express.js to build my REST API endpoints, Axios to make HTTP requests, and Docker to create a MongoDB image to persist the data.
+In this project, I used Express.js to build my REST API endpoints, Axios to make HTTP requests, and Docker to create a MongoDB container/image to persist the data.
 
 When the browser points to http://localhost:8080/posts, each AggieFeed activities' id, published, title, and actor.displayName data properties are returned.
 
